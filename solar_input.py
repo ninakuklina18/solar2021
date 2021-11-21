@@ -4,12 +4,22 @@
 from solar_objects import Star, Planet
 from solar_vis import DrawableObject
 
+colors = {
+    'red': (255, 0, 0),
+    'blue': (0, 0, 255),
+    'green': (31, 168, 31),
+    'orange': (241, 178, 64),
+    'gray': (191, 191, 191),
+    'yellow': (255, 255, 0),
+    'white': (255, 255, 255),
+    'cyan': (0, 255, 255),
+}
+
+
 def read_space_objects_data_from_file(input_filename):
     """Cчитывает данные о космических объектах из файла, создаёт сами объекты
     и вызывает создание их графических образов
-
     Параметры:
-
     **input_filename** — имя входного файла
     """
 
@@ -20,18 +30,14 @@ def read_space_objects_data_from_file(input_filename):
                 continue  # пустые строки и строки-комментарии пропускаем
 
             object_type = line.split()[0].lower()
-            if object_type == "star":
-                star = Star()
-                parse_star_parameters(line, star)
-                objects.append(star)
-            elif object_type == "planet":
+            if object_type == "planet" or object_type == 'star':
                 planet = Planet()
                 parse_planet_parameters(line, planet)
                 objects.append(planet)
             else:
                 print("Unknown space object")
 
-    return [DrawableObject(obj) for obj in objects]
+    return objects
 
 
 def parse_star_parameters(line, star):
@@ -53,47 +59,60 @@ def parse_star_parameters(line, star):
 
     **star** — объект звезды.
     """
-    pass  # FIXME: допишите парсер
+    tokens = line.split()
+    assert len(tokens) == 8
+    star.type = tokens[0]
+    star.R = int(tokens[1])
+    star.color = colors[tokens[2]]
+    star.m = float(tokens[3])
+    star.x = float(tokens[4])
+    star.y = float(tokens[5])
+    star.Vx = float(tokens[6])
+    star.Vy = float(tokens[7])
 
 def parse_planet_parameters(line, planet):
     """Считывает данные о планете из строки.
     Входная строка должна иметь слеюущий формат:
-
     Planet <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
-
     Здесь (x, y) — координаты планеты, (Vx, Vy) — скорость.
-
     Пример строки:
-
     Planet 10 red 1000 1 2 3 4
-
     Параметры:
-
     **line** — строка с описание планеты.
-
     **planet** — объект планеты.
     """
-    pass  # FIXME: допишите парсер
+    tokens = line.split()
+    assert len(tokens) == 8
+    planet.type = tokens[0]
+    planet.R = int(tokens[1])
+    planet.color = colors[tokens[2]]
+    planet.m = float(tokens[3])
+    planet.x = float(tokens[4])
+    planet.y = float(tokens[5])
+    planet.Vx = float(tokens[6])
+    planet.Vy = float(tokens[7])
 
-def write_space_objects_data_to_file(output_filename, space_objects):
+
+def write_space_objects_data_to_file(output_filename, space_objects, time):
     """Сохраняет данные о космических объектах в файл.
-
     Строки должны иметь следующий формат:
-
     Star <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
-
     Planet <радиус в пикселах> <цвет> <масса> <x> <y> <Vx> <Vy>
-
     Параметры:
-
-    **output_filename** — имя входного файла
-
+    **'output.txt'** — имя входного файла
     **space_objects** — список объектов планет и звёзд
     """
-    with open(output_filename, 'w') as out_file:
+    with open('output.txt', 'a') as out_file:
         for obj in space_objects:
-            print(out_file, "%s %d %s %f" % ('1', 2, '3', 4.5))
-            # FIXME!
+            if obj.type == 'Planet':
+                print(obj.type, obj.R, get_key(obj.color, colors), obj.m, obj.x, obj.y, "{:f}".format((obj.x**2 + obj.y**2)**0.5),
+                      time, file=out_file)
+
+
+def get_key(val, dictionary):
+    for key, value in dictionary.items():
+        if val == value:
+            return key
 
 
 if __name__ == "__main__":
